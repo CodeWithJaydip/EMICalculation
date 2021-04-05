@@ -1,0 +1,259 @@
+﻿@model LoanDetailsViewModel
+@{
+    ViewData["Title"] = "Calculate";
+}
+<link href="~/css/TableField.css" rel="stylesheet" />
+
+<h1>Calculate</h1>
+
+<div class="container">
+   
+
+        <div class="row">
+            <div class="col-6">
+                <form method="post" asp-action="Calculate" asp-controller="Home">
+
+                    <div asp-validation-summary="All" class="text-danger">
+                    </div>
+
+                    <h4 class="text-danger" id="errorMsg">@ViewBag.Error</h4>
+
+                    <p class="text-black-50"><span class="text-danger">*</span> fields are require!</p>
+
+                    <div class="form-group">
+                        <label asp-for="LoanData.LoanAmount"></label>&nbsp;<span class="text-danger">*</span>
+                        <input asp-for="LoanData.LoanAmount" class="form-control input" id="loanAmount">
+                        <span asp-validation-for="LoanData.LoanAmount" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="LoanData.RateOfInterest"></label>&nbsp;<span class="text-danger">*</span>
+                        <input asp-for="LoanData.RateOfInterest" class="form-control input" id="rateOfInterest">
+                        <span asp-validation-for="LoanData.RateOfInterest" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="LoanData.Installments"></label>&nbsp;<span class="text-danger">*</span>
+                        <input asp-for="LoanData.Installments" class="form-control input" id="installments">
+                        <span asp-validation-for="LoanData.Installments" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="LoanData.EMI"></label>
+                        <input asp-for="LoanData.EMI" class="form-control disabled" disabled id="emi">
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="LoanData.MonthlyRateOfInterest"></label>
+                        <input asp-for="LoanData.MonthlyRateOfInterest" class="form-control" disabled id="monthlyRateOfInterest">
+                    </div>
+                    <div class="col-2 form-group">
+                        <input type="submit" class="btn btn-primary" value="Save to Database" hidden id="databasebtn" />
+
+
+
+                    </div>
+                    <div class="col-1 form-group">
+
+                    </div>
+                    <div class="col-2 form-group">
+                        <input type="button" id="checkBtn" value="Get EMI Details" class="btn btn-success" />
+                    </div>
+
+
+
+                </form>
+
+            </div>
+            <div class="col-1">
+            </div>
+
+            <div class="col-5" id="grid">
+                <div class="row">
+                    <table class="table table-bordered">
+                        <thead>
+                            <tr>
+                                <th class="thead" colspan="2">Require Details</th>
+
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <th>Loan Amount</th>
+                                <td class="tfield" id="tLoanAmout"></td>
+                            </tr>
+                            <tr>
+                                <th>Rate of Interest</th>
+                                <td class="tfield" id="tRateOfInterest"></td>
+                            </tr>
+                            <tr>
+                                <th>Installments</th>
+                                <td class="tfield" id="tInstallment"></td>
+                            </tr>
+
+                        </tbody>
+
+                    </table>
+
+
+
+                </div>
+                <div class="row">
+                    <table class="table table-bordered" hidden>
+                        <thead>
+                            <tr>
+                                <th class="thead" colspan="2">Loan Summary</th>
+
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <th>Monthly Rate Of Interest</th>
+                                <td class="tAnotherField" id="monthlyInterestRate"></td>
+                            </tr>
+                            <tr>
+                                <th>EMI</th>
+                                <td class="tAnotherField" id="tEmi"></td>
+                            </tr>
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+
+            </div>
+
+        </div>
+
+        <div class="row pt-2">
+            <table id="example" class="table table-striped table-bordered" width="100%" cellspacing="0">
+                <thead>
+                    <tr>
+                        <th>Installments</th>
+                        <th>Opening</th>
+                        <th>Principal</th>
+                        <th>Interest</th>
+                        <th>EMI</th>
+                        <th>Closing</th>
+                        <th>Cumulative Interest</th>
+
+                    </tr>
+                </thead>
+                <tbody id="tblData">
+                </tbody>
+            </table>
+
+        </div>
+
+
+
+
+</div>
+
+
+
+
+@section Scripts{
+    <script>
+        var convocationData = "";
+
+        
+        $(document).ready(function () {
+           
+
+           
+
+            $('.input').blur(function () {
+                var loanAmount = $('#loanAmount').val()
+                var rateOfInterest = $('#rateOfInterest').val()
+                var installment = $('#installments').val()
+                if (loanAmount != 0 && rateOfInterest != 0 && installment != 0) {
+
+
+                    var installmentInMonth = installment * 12;
+                    var monthlyRateOfInterest = (rateOfInterest / (12 * 100));
+                    $('#monthlyRateOfInterest').val(monthlyRateOfInterest);
+
+                    var data = Math.pow((1 + monthlyRateOfInterest), installmentInMonth)
+                    var EMI = loanAmount * monthlyRateOfInterest * (data / (data - 1));
+                    $('#emi').val(EMI);
+
+                    $('#checkBtn').click(function () {
+                        $('table').prop("hidden", false)
+                        
+
+                        $.ajax({
+                            type: "POST",
+                            url: "/Home/AjaxMethod",
+                            data: {
+                                "loanAmount": loanAmount,
+                                "rateOfInterest": rateOfInterest,
+                                "installment": installment,
+                                "monthlyRateOfInterest": monthlyRateOfInterest,
+                                "emi": EMI
+                            },
+                            success: function (response) {
+                                console.log(response)
+                                //alert(response.installments)
+                                //convocationData = response;
+                                //console.log(convocationData);
+                                res = response;
+                                document.getElementById("tLoanAmout").innerHTML = res.loanData.loanAmount
+                                document.getElementById("tRateOfInterest").innerHTML = res.loanData.rateOfInterest
+                                document.getElementById("tInstallment").innerHTML = res.loanData.installments
+                                document.getElementById("monthlyInterestRate").innerHTML = res.loanData.monthlyRateOfInterest
+                                document.getElementById("tEmi").innerHTML = res.loanData.emi
+
+                                var trHTML = '';
+                                $.each(res.transactionDetails, function (i, item) {
+                                    trHTML += '<tr><td>' + (i + 1) + '</td><td>' + res.transactionDetails[i].openingAmonut.toFixed(2) + '</td><td>' + res.transactionDetails[i].principal.toFixed(2) + '</td><td>' + res.transactionDetails[i].interest.toFixed(2) + '</td><td>' + res.transactionDetails[i].emi.toFixed(2) + '</td><td>' + res.transactionDetails[i].closingAmount.toFixed(2) + '</td><td>' + res.transactionDetails[i].cumulativeInterest.toFixed(2) + '</td></tr>'
+
+
+                                });
+                                $('#tblData').append(trHTML);
+                                $('#checkBtn').prop('hidden', true);
+
+                               
+
+
+                               
+
+                                $('#databasebtn').prop("hidden", false).click(function () {
+                                    $("#emi").prop("disabled", false);
+                                    $("#monthlyRateOfInterest").prop("disabled", false);
+                                    if ($('#errorMsg').val() == " ") {
+                                        swal("Good", "Data Saved SUccessfully", "success");
+                                    }
+                                });
+
+                              
+
+                            },
+                            error: function (response) {
+                                alert("Error ocuured")
+                            }
+                        }
+                        );
+                    });
+
+                }
+
+                else {
+
+                    //alert("Please Enter all the data");
+                    $('#emi').val(0);
+                    $('#monthlyRateOfInterest').val(0);
+                    $('#month').val(0)
+
+
+
+                }
+
+
+            })
+
+           
+        }
+        );
+    </script>
+
+}
+
+
