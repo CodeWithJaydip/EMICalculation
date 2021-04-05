@@ -431,3 +431,4 @@ C:\Users\jaydip mer\source\repos\EMI_Calculator\EMI_Calculator\obj\Debug\netcore
 C:\Users\jaydip mer\source\repos\EMI_Calculator\EMI_Calculator\obj\Debug\netcoreapp3.1\EMI_Calculator.dll
 C:\Users\jaydip mer\source\repos\EMI_Calculator\EMI_Calculator\obj\Debug\netcoreapp3.1\EMI_Calculator.pdb
 C:\Users\jaydip mer\source\repos\EMI_Calculator\EMI_Calculator\obj\Debug\netcoreapp3.1\EMI_Calculator.genruntimeconfig.cache
+C:\Users\jaydip mer\source\repos\EMI_Calculator\EMI_Calculator\bin\Debug\netcoreapp3.1\Dapper.dll

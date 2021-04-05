@@ -1,12 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
+using Dapper;
 using EMI_Calculator.Data;
 using EMI_Calculator.Models;
 using EMI_Calculator.Models.ViewModel;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Data.SqlClient;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 
@@ -15,20 +19,24 @@ namespace EMI_Calculator.Controllers
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;
-        private readonly ApplicationDbContext _db;
+         private readonly ApplicationDbContext _db;
+        private IConfiguration config;
         public static  List<TransactionDetail> detailsoftransaction;
         static HomeController()
         {
             detailsoftransaction = new List<TransactionDetail>();
         }
-        public HomeController(ILogger<HomeController> logger, ApplicationDbContext db)
+        public HomeController(ILogger<HomeController> logger, ApplicationDbContext db,IConfiguration _config)
         {
             _logger = logger;
             _db = db;
+            config = _config;
         }
+       
 
         public IActionResult Index()
         {
+            
             return View();
         }
         public IActionResult Calculate()
@@ -40,6 +48,7 @@ namespace EMI_Calculator.Controllers
 
         public IActionResult Calculate(LoanDetailsViewModel model)
         {
+            string ConnectionString = this.config.GetConnectionString("DefaultConnection");
             if (ModelState.IsValid)
             {
                 LoanData existData = _db.LoanData.FirstOrDefault(
@@ -59,18 +68,32 @@ namespace EMI_Calculator.Controllers
                 else
                 {
 
-                    var data = _db.LoanData.Add(model.LoanData);
-                    var data1 = _db.SaveChanges();
-                    var loanId = _db.LoanData.Find(model.LoanData.Id);
-
-                    foreach (var item1 in detailsoftransaction)
+                  var data=  DapperMethods.AddLoanData(model.LoanData);
+                  
+                    int loanId = data;
+                    foreach(var item in detailsoftransaction)
                     {
-                        item1.LoanId = loanId.Id;
-                        _db.TransactionDetails.Add(item1);
-                        _db.SaveChanges();
+                        DapperMethods.AddTransactionDetails(item, data);
 
                     }
                     detailsoftransaction = new List<TransactionDetail>();
+
+
+
+
+
+                    //var data = _db.LoanData.Add(model.LoanData);
+                    //var data1 = _db.SaveChanges();
+                    //var loanId = _db.LoanData.Find(model.LoanData.Id);
+
+                    //foreach (var item1 in detailsoftransaction)
+                    //{
+                    //    item1.LoanId = loanId.Id;
+                    //    _db.TransactionDetails.Add(item1);
+                    //    _db.SaveChanges();
+
+                    //}
+                    //detailsoftransaction = new List<TransactionDetail>();
                     return RedirectToAction("TransactionDetail");
 
                 }
