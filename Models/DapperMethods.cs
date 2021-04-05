@@ -21,6 +21,7 @@ namespace EMI_Calculator.Models
         public static string ConnectionString = "Server=.;Database=EMI_Calculator;Trusted_Connection=True;MultipleActiveResultSets=true";
         public static  int AddLoanData(LoanData data)
         {
+            LoanData loanData = new LoanData();
             int loanId = 0;
            
             using (IDbConnection con = new SqlConnection(ConnectionString))
@@ -35,7 +36,8 @@ namespace EMI_Calculator.Models
                 parameters.Add("@MonthlyRateOfInterest", data.MonthlyRateOfInterest);
 
                 con.Execute("InsertLoanData", parameters, commandType: CommandType.StoredProcedure);
-                 loanId = GetLoanIdNew(data.LoanAmount, data.RateOfInterest, data.Installments);
+                 loanData = GetLoanIdNew(data.LoanAmount, data.RateOfInterest, data.Installments);
+                 loanId = loanData.Id;
 
             }
             return loanId;
@@ -56,7 +58,7 @@ namespace EMI_Calculator.Models
             return loanData;
         }
 
-        public static int GetLoanIdNew(double loanAmount, double interest, double installments)
+        public static LoanData GetLoanIdNew(double loanAmount, double interest, double installments)
         {
             LoanData loanData = new LoanData();
             using (IDbConnection con = new SqlConnection(ConnectionString))
@@ -70,7 +72,7 @@ namespace EMI_Calculator.Models
 
                 loanData = con.Query<LoanData>("GetLoanIdNew",parameters, commandType: CommandType.StoredProcedure).FirstOrDefault();
             }
-            return loanData.Id;
+            return loanData;
         }
 
         public static  int AddTransactionDetails(TransactionDetail data,int LoanId)

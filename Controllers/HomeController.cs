@@ -51,10 +51,9 @@ namespace EMI_Calculator.Controllers
             string ConnectionString = this.config.GetConnectionString("DefaultConnection");
             if (ModelState.IsValid)
             {
-                LoanData existData = _db.LoanData.FirstOrDefault(
-               m => m.LoanAmount ==model.LoanData.LoanAmount && m.RateOfInterest == model.LoanData.RateOfInterest &&
-                  m.Installments == model.LoanData.Installments
-               );
+                
+
+                LoanData existData = DapperMethods.GetLoanIdNew(model.LoanData.LoanAmount, model.LoanData.RateOfInterest, model.LoanData.Installments);
 
                 if (existData != null)
                 {
@@ -78,22 +77,6 @@ namespace EMI_Calculator.Controllers
                     }
                     detailsoftransaction = new List<TransactionDetail>();
 
-
-
-
-
-                    //var data = _db.LoanData.Add(model.LoanData);
-                    //var data1 = _db.SaveChanges();
-                    //var loanId = _db.LoanData.Find(model.LoanData.Id);
-
-                    //foreach (var item1 in detailsoftransaction)
-                    //{
-                    //    item1.LoanId = loanId.Id;
-                    //    _db.TransactionDetails.Add(item1);
-                    //    _db.SaveChanges();
-
-                    //}
-                    //detailsoftransaction = new List<TransactionDetail>();
                     return RedirectToAction("TransactionDetail");
 
                 }
