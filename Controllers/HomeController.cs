@@ -18,25 +18,30 @@ namespace EMI_Calculator.Controllers
 {
     public class HomeController : Controller
     {
-        private readonly ILogger<HomeController> _logger;
-         private readonly ApplicationDbContext _db;
-        private IConfiguration config;
+       
+       
+        
+       
         public static  List<TransactionDetail> detailsoftransaction;
         static HomeController()
         {
             detailsoftransaction = new List<TransactionDetail>();
         }
-        public HomeController(ILogger<HomeController> logger, ApplicationDbContext db,IConfiguration _config)
-        {
-            _logger = logger;
-            _db = db;
-            config = _config;
-        }
-       
-
-        public IActionResult Index()
+        public HomeController()
         {
             
+           
+            
+        }
+       
+     
+
+
+
+        public  IActionResult Index()
+        {
+            
+
             return View();
         }
         public IActionResult Calculate()
@@ -48,7 +53,7 @@ namespace EMI_Calculator.Controllers
 
         public IActionResult Calculate(LoanDetailsViewModel model)
         {
-            string ConnectionString = this.config.GetConnectionString("DefaultConnection");
+           
             if (ModelState.IsValid)
             {
                 
@@ -69,7 +74,6 @@ namespace EMI_Calculator.Controllers
 
                   var data=  DapperMethods.AddLoanData(model.LoanData);
                   
-                    int loanId = data;
                     foreach(var item in detailsoftransaction)
                     {
                         DapperMethods.AddTransactionDetails(item, data);

@@ -6,12 +6,13 @@ using System.Threading.Tasks;
 using Dapper;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
+using Microsoft.IdentityModel.Protocols;
 
 namespace EMI_Calculator.Models
 {
     public class DapperMethods
     {
-        private  IConfiguration _config;
+          IConfiguration _config;
         public DapperMethods(IConfiguration config)
         {
             _config = config;
@@ -19,8 +20,10 @@ namespace EMI_Calculator.Models
 
 
         public static string ConnectionString = "Server=.;Database=EMI_Calculator;Trusted_Connection=True;MultipleActiveResultSets=true";
+       
         public static  int AddLoanData(LoanData data)
         {
+            
             LoanData loanData = new LoanData();
             int loanId = 0;
            
@@ -44,8 +47,9 @@ namespace EMI_Calculator.Models
             
         }
 
-        public static  LoanData GetLoanDataById(int id)
+        public   LoanData GetLoanDataById(int id)
         {
+            string ConnectionString = _config.GetConnectionString("DefaultConnection");
             LoanData loanData = new LoanData();
             using (IDbConnection con = new SqlConnection(ConnectionString))
             {
@@ -60,6 +64,7 @@ namespace EMI_Calculator.Models
 
         public static LoanData GetLoanIdNew(double loanAmount, double interest, double installments)
         {
+            
             LoanData loanData = new LoanData();
             using (IDbConnection con = new SqlConnection(ConnectionString))
             {
@@ -77,6 +82,7 @@ namespace EMI_Calculator.Models
 
         public static  int AddTransactionDetails(TransactionDetail data,int LoanId)
         {
+           
             int rowAffected = 0;
 
             using (IDbConnection con = new SqlConnection(ConnectionString))
